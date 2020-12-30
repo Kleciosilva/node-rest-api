@@ -8,7 +8,7 @@ class Atendimento {
     const dataCriacao = moment().format('YYYY-MM-DD HH:MM:SS')
     const atendimentoDatado = { ...atendimento, dataCriacao, data }
     const dataFormatoValido = data !== 'Invalid date'
-    const dataValida = moment(data).isSameOrAfter(dataCriacao, 'day')
+    const dataValida = moment(data).isSameOrAfter(moment(dataCriacao).format('YYYY-MM-DD'))
     const clienteValido = atendimento.cliente.length >= 5
 
     console.log('dataValida', dataValida, data, '>=', dataCriacao)
@@ -40,7 +40,10 @@ class Atendimento {
         if (erro) {
           res.status(400).json(erro)
         } else {
-          res.status(201).json(resultados)
+          res.status(201).json({
+            id: resultados.insertId,
+            ...atendimentoDatado
+          })
         }
       })
     }
@@ -69,7 +72,7 @@ class Atendimento {
         if (resultado) {
           res.status(200).json(resultado)
         } else {
-          res.status(500).json({ message: 'Erro ao acessar o banco' })
+          res.status(404).json({ message: 'Registro não encontrado' })
         }
       }
     })
@@ -85,7 +88,21 @@ class Atendimento {
       if (erro) {
         res.status(400).json(erro)
       } else {
-        res.status(200).json(resultados)
+        res.status(200).json({ ...valores, id })
+      }
+    })
+  }
+
+  deleta (id, res) {
+    const sql = `DELETE FROM atendimentos WHERE id=${id}`
+
+    conexao.query(sql, (erro, resultado) => {
+      if (erro) {
+        res.status(400).json(erro)
+      } else if (!resultado.affectedRows) {
+        res.status(204).send()
+      } else {
+        res.status(200).json(resultado)
       }
     })
   }
