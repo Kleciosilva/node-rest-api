@@ -45,6 +45,35 @@ class Atendimento {
       })
     }
   }
+
+  lista (res) {
+    const sql = 'SELECT * FROM atendimentos'
+
+    conexao.query(sql, (erro, resultados) => {
+      if (erro) {
+        res.status(400).json(erro)
+      } else {
+        res.status(200).json(resultados)
+      }
+    })
+  }
+
+  buscaPorId (id, res) {
+    const sql = `SELECT * FROM atendimentos WHERE id=${id}`
+
+    conexao.query(sql, (erro, resultados) => {
+      if (erro) {
+        res.status(400).json(erro)
+      } else {
+        const resultado = resultados[0] || null
+        if (resultado) {
+          res.status(200).json(resultado)
+        } else {
+          res.status(500).json({ message: 'Erro ao acessar o banco' })
+        }
+      }
+    })
+  }
 }
 
 module.exports = new Atendimento()
